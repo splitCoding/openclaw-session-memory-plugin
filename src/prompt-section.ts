@@ -1,32 +1,45 @@
-interface PromptSectionParams {
-  availableTools: Set<string>;
-  citationsMode?: string;
-}
+import type { MemoryPromptSectionBuilder } from "openclaw/plugin-sdk/memory-core-host-runtime-core";
 
-export function buildPromptSection({
+export const buildPromptSection: MemoryPromptSectionBuilder = ({
   availableTools,
-}: PromptSectionParams): string[] {
-  const hasSearch = availableTools.has("my_memory_search");
-  const hasStore = availableTools.has("my_memory_store");
+  citationsMode,
+}) => {
+  const hasMemorySearch = availableTools.has("memory_search");
+  const hasMemoryGet = availableTools.has("memory_get");
+  const hasMemoryStore = availableTools.has("memory_store");
 
-  if (!hasSearch && !hasStore) {
+  if (!hasMemorySearch && !hasMemoryGet && !hasMemoryStore) {
     return [];
   }
 
-  const lines = ["## Custom Memory (Session-Scoped)"];
+  const lines = ["## Memory Recall"];
 
-  if (hasStore) {
+  if (hasMemorySearch && hasMemoryGet) {
     lines.push(
-      "Use my_memory_store to save information. By default saves to the current session only (scope='session'). Use scope='shared' for information all sessions should access.",
+      "Before answering anything about prior work, decisions, dates, people, preferences, or todos: run memory_search; then use memory_get to pull only the needed lines. Use scope to control session isolation: 'all' (default) = current session + shared, 'session' = current session only, 'shared' = shared memory only.",
+    );
+  } else if (hasMemorySearch) {
+    lines.push(
+      "Before answering anything about prior work, decisions, dates, people, preferences, or todos: run memory_search. Use scope to control session isolation.",
     );
   }
 
-  if (hasSearch) {
+  if (hasMemoryStore) {
     lines.push(
-      "Use my_memory_search to recall prior context. By default searches both session and shared memory (scope='all'). Use scope='session' for current session only, or scope='shared' for shared memory only.",
+      "When saving memories, ALWAYS use memory_store instead of write/edit tools. Direct file writes to memory/ will bypass session scoping. scope='session' (default) saves for this conversation only. scope='shared' saves for all sessions.",
+    );
+  }
+
+  if (citationsMode === "off") {
+    lines.push(
+      "Citations are disabled: do not mention file paths or line numbers in replies unless the user explicitly asks.",
+    );
+  } else {
+    lines.push(
+      "Citations: include Source: <path#line> when it helps the user verify memory snippets.",
     );
   }
 
   lines.push("");
   return lines;
-}
+};

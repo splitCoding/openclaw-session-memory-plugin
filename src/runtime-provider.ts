@@ -5,7 +5,10 @@ import { closeAllMemorySearchManagers, getMemorySearchManager } from "./memory/i
 export const memoryRuntime: MemoryPluginRuntime = {
   async getMemorySearchManager(params) {
     const { manager, error } = await getMemorySearchManager(params);
-    return { manager, error };
+    return {
+      manager,
+      error,
+    };
   },
   resolveMemoryBackendConfig(params) {
     return resolveMemoryBackendConfig(params);
