@@ -42,13 +42,13 @@ export const DEFAULT_MEMORY_FLUSH_FORCE_TRANSCRIPT_BYTES = 2 * 1024 * 1024;
 // 플러시 시 AI가 지켜야 할 규칙들입니다.
 // 이 힌트들은 프롬프트에 반드시 포함되어야 합니다.
 
-// 힌트 1: memory_store 도구 사용 강제 — write/edit 대신 memory_store로 저장
+// 힌트 1: memory_save 도구 사용 강제 — write/edit 대신 memory_save로 저장
 const MEMORY_FLUSH_TARGET_HINT =
-  "Use the memory_store tool to save memories. Use scope='session' for session-specific memories, scope='shared' for memories all sessions should access. Do NOT use write or edit tools for memory storage.";
+  "Use the memory_save tool to save memories. Use scope='session' for session-specific memories, scope='shared' for memories all sessions should access. Do NOT use write or edit tools for memory storage.";
 
-// 힌트 2: 이어쓰기 전용 — memory_store는 자동으로 append하므로 덮어쓰기 걱정 없음
+// 힌트 2: 이어쓰기 전용 — memory_save는 자동으로 append하므로 덮어쓰기 걱정 없음
 const MEMORY_FLUSH_APPEND_ONLY_HINT =
-  "Each memory_store call appends to the appropriate file. Do not attempt to overwrite existing entries.";
+  "Each memory_save call appends to the appropriate file. Do not attempt to overwrite existing entries.";
 
 // 힌트 3: 읽기 전용 보호 — MEMORY.md, SOUL.md 등 부트스트랩 파일은 수정 금지
 const MEMORY_FLUSH_READ_ONLY_HINT =
@@ -77,7 +77,7 @@ export const DEFAULT_MEMORY_FLUSH_PROMPT = [
 // AI에게 전달되는 플러시 턴 시스템 프롬프트 (시스템 메시지 역할)
 export const DEFAULT_MEMORY_FLUSH_SYSTEM_PROMPT = [
   "Pre-compaction memory flush turn.",
-  "The session is near auto-compaction; capture durable memories to disk using the memory_store tool.",
+  "The session is near auto-compaction; capture durable memories to disk using the memory_save tool.",
   MEMORY_FLUSH_TARGET_HINT,
   MEMORY_FLUSH_READ_ONLY_HINT,
   MEMORY_FLUSH_APPEND_ONLY_HINT,

@@ -6,7 +6,7 @@ export const buildPromptSection: MemoryPromptSectionBuilder = ({
 }) => {
   const hasMemorySearch = availableTools.has("memory_search");
   const hasMemoryGet = availableTools.has("memory_get");
-  const hasMemoryStore = availableTools.has("memory_store");
+  const hasMemoryStore = availableTools.has("memory_save");
 
   if (!hasMemorySearch && !hasMemoryGet && !hasMemoryStore) {
     return [];
@@ -26,7 +26,7 @@ export const buildPromptSection: MemoryPromptSectionBuilder = ({
 
   if (hasMemoryStore) {
     lines.push(
-      "When saving memories, ALWAYS use memory_store instead of write/edit tools. Direct file writes to memory/ will bypass session scoping. scope='session' (default) saves for this conversation only. scope='shared' saves for all sessions.",
+      "When saving memories, ALWAYS use memory_save instead of write/edit tools. Direct file writes to memory/ will bypass session scoping. scope='session' (default) saves for this conversation only. scope='shared' saves for all sessions.",
     );
   }
 

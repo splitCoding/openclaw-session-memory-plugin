@@ -7,7 +7,7 @@
  * 도구 3개:
  * - memory_search: 검색 (scope 파라미터로 세션/공유/전체 선택)
  * - memory_get:    파일 스니펫 읽기 (원본 동일)
- * - memory_store:  저장 (scope 파라미터로 세션/공유 선택)
+ * - memory_save:  저장 (scope 파라미터로 세션/공유 선택)
  */
 
 import {
@@ -63,7 +63,7 @@ const MemorySearchWithScopeSchema = Type.Object({
   minScore: Type.Optional(Type.Number()),
 });
 
-/** memory_store: 세션별 저장 */
+/** memory_save: 세션별 저장 */
 const MemoryStoreSchema = Type.Object({
   key: Type.String({ description: "Memory key or topic (used as heading)" }),
   content: Type.String({ description: "Content to store" }),
@@ -249,29 +249,35 @@ export function createMemoryGetTool(options: {
   });
 }
 
-// ─── memory_store ────────────────────────────────────────────
+// ─── memory_save ────────────────────────────────────────────
 
 export function createMemoryStoreTool(options: {
   config?: OpenClawConfig;
   agentSessionKey?: string;
-}) {
+}): AnyAgentTool {
+  // memory_save는 검색 설정(resolveMemorySearchConfig)과 무관하게 동작해야 하므로
+  // createMemoryTool 래퍼를 사용하지 않고 직접 생성합니다.
+  // config가 없어도 null을 반환하지 않고, execute 시점에 에러를 반환합니다.
+  const cfg = options.config;
   return {
-    name: "memory_store",
     label: "Memory Store",
+    name: "memory_save",
     description:
       "Store a memory entry. ALWAYS use this instead of write/edit when saving to memory. scope='session' (default) saves for this conversation only. scope='shared' saves for all sessions to access.",
     parameters: MemoryStoreSchema,
     async execute(
       _toolCallId: string,
-      params: {
-        key: string;
-        content: string;
-        tags?: string[];
-        scope?: "session" | "shared";
-      },
+      params: Record<string, unknown>,
     ) {
-      const { key, content, tags = [], scope = "session" } = params;
-      const workspaceDir = resolveWorkspaceDir(options.config);
+      if (!cfg) {
+        return jsonResult({ stored: false, error: "config not available" });
+      }
+      const key = readStringParam(params, "key", { required: true });
+      const content = readStringParam(params, "content", { required: true });
+      const tagsRaw = params.tags;
+      const tags = Array.isArray(tagsRaw) ? tagsRaw.map(String) : [];
+      const scope = readStringParam(params, "scope") ?? "session";
+      const workspaceDir = resolveWorkspaceDir(cfg);
       const dateStamp = getDateStamp();
 
       const relativePath = resolveMemoryFilePath({

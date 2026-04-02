@@ -58,8 +58,34 @@ export default definePluginEntry({
           config: ctx.config,
           agentSessionKey: ctx.sessionKey,
         }),
-      { names: ["memory_store"] },
+      { names: ["memory_save"] },
     );
+
+    // write/edit 도구가 memory/ 경로에 쓰려고 하면 차단하고
+    // memory_save 사용을 유도하는 훅
+    api.on("before_tool_call", (event) => {
+      const { toolName, params } = event;
+      if (toolName !== "write" && toolName !== "edit") {
+        return {};
+      }
+      const filePath = (params.file ?? params.path ?? params.file_path ?? "") as string;
+      const normalizedPath = filePath.toLowerCase();
+      if (
+        normalizedPath.includes("/memory/") ||
+        normalizedPath.includes("/memory.md") ||
+        normalizedPath.endsWith("memory.md")
+      ) {
+        return {
+          block: true,
+          blockReason:
+            "BLOCKED: write/edit to memory files is disabled. " +
+            "You MUST call the memory_save tool to save memories. " +
+            "Example: memory_save({ key: \"topic\", content: \"...\", scope: \"session\" }). " +
+            "Do NOT retry with write or edit. Use memory_save immediately.",
+        };
+      }
+      return {};
+    });
 
     api.registerCli(
       ({ program }) => {

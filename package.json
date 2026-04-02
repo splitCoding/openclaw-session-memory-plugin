@@ -1,5 +1,5 @@
 {
-  "name": "@myorg/openclaw-my-plugin",
+  "name": "@openclaw/my-plugin",
   "version": "1.0.0",
   "description": "Custom memory management plugin for OpenClaw",
   "type": "module",
