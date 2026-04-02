@@ -13,17 +13,17 @@ export function buildPromptSection({
     return [];
   }
 
-  const lines = ["## Custom Memory"];
-
-  if (hasSearch) {
-    lines.push(
-      "Use my_memory_search to recall prior context, decisions, and preferences before answering related questions.",
-    );
-  }
+  const lines = ["## Custom Memory (Session-Scoped)"];
 
   if (hasStore) {
     lines.push(
-      "Use my_memory_store to save important information, decisions, or user preferences for future recall.",
+      "Use my_memory_store to save information. By default saves to the current session only (scope='session'). Use scope='shared' for information all sessions should access.",
+    );
+  }
+
+  if (hasSearch) {
+    lines.push(
+      "Use my_memory_search to recall prior context. By default searches both session and shared memory (scope='all'). Use scope='session' for current session only, or scope='shared' for shared memory only.",
     );
   }
 
