@@ -1,0 +1,17 @@
+{
+  "id": "my-plugin",
+  "name": "My Plugin",
+  "kind": "memory",
+  "description": "Custom memory management plugin for OpenClaw",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "backend": {
+        "type": "string",
+        "description": "Memory storage backend to use",
+        "default": "file"
+      }
+    }
+  }
+}
